@@ -1,0 +1,37 @@
+name: Build and Upload Artifact
+
+on:
+  push:
+    branches:
+      - main  # 只在 main 分支 push 时触发（可调整）
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # 也可以添加 windows/macos
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4  # 使用最新稳定版
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"  # 指定你的 Python 版本
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt  # 安装项目依赖
+
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller --onefile --clean --windowed your_script.py  # 替换为你的脚本名
+        # 可选参数：--icon=icon.ico, --name=myapp
+
+    - name: Upload executable as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: myapp-executable  # 工件名称
+        path: dist/  # PyInstaller 输出目录
+        retention-days: 7  # 工件保留天数（默认 90）
