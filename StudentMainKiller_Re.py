@@ -2,7 +2,9 @@ import subprocess
 import sys
 import time
 import ctypes
-import asyncio
+import urllib.request
+import requests
+import os
 from ctypes import wintypes
 import win32con
 import win32gui
@@ -11,7 +13,10 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from demo import Ui_Dialog
 
-process = "StudentMain.exe"
+url = "https://update.eleven.icu:8081/version"
+version = "1.0.1-beta"
+version_new = requests.post(url).text
+
 
 
 def ResultShow(text, status):
@@ -136,7 +141,7 @@ class MyDialog(QtWidgets.QDialog):
         super().__init__()
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-        self.ui.label.setText("初始化成功")
+        self.ui.label.setText(f"初始化成功,当前版本:{version},云端版本:{version_new}")
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
         self.keyboard_hook_thread = None
 
@@ -156,12 +161,14 @@ class MyDialog(QtWidgets.QDialog):
         self.ui.pushButton_3.clicked.connect(self.disable_internet_ban)
         self.ui.pushButton_4.clicked.connect(self.disable_Udisk_ban)
         self.ui.pushButton_5.clicked.connect(self.disable_keyboard_ban)
+        #self.ui.pushButton_6.clicked.connect(self.update)
 
         self.ui.pushButton.setText("结束进程")
         self.ui.pushButton_2.setText("缩小极域窗口")
         self.ui.pushButton_3.setText("解除网络禁用")
         self.ui.pushButton_4.setText("解除U盘禁用")
         self.ui.pushButton_5.setText("解除键盘锁")
+        self.ui.pushButton_6.setText("更新(todo)")
 
     def timerEvent(self, event):
         self.set_topmost()
@@ -222,7 +229,20 @@ class MyDialog(QtWidgets.QDialog):
             self.keyboard_hook_thread.stop()
             self.keyboard_hook_thread.wait()
         super().closeEvent(event)
-
+'''
+    def update(self):
+        if version == version_new:
+            ResultShow("当前已是最新！","")
+        else:
+            ResultShow("正在更新中...","Loading...")
+            download_url = "https://eleven.icu/%E4%B8%80%E4%BA%9B%E6%9D%82%E7%89%A9/latest.exe"
+            path = os.environ.get("USERPROFILE")
+            try:
+                ResultShow(path + "\desktop","")
+                urllib.request.urlretrieve(download_url, "E:/")
+            except Exception as e:
+                ResultShow(str(e), "失败")
+'''
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
