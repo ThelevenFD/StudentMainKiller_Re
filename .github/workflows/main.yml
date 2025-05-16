@@ -26,7 +26,7 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
-        pyinstaller --onefile --clean --windowed --name=StudentMainKiller_Re --icon=icon.ico --manifest manifest.xml StudentMainKiller_Re.py  # 替换为你的脚本名
+        pyinstaller --onefile --clean --windowed --name=StudentMainKiller_Re --icon=icon.ico --hidden-import=requests --uac-admin StudentMainKiller_Re.py  # 替换为你的脚本名
         # 可选参数：--icon=icon.ico, --name=myapp
 
     - name: Upload executable as artifact

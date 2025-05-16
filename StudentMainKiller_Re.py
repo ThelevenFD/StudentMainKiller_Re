@@ -11,6 +11,7 @@ import win32gui
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtGui import QIcon
 from demo import Ui_Dialog
 
 url = "https://update.eleven.icu:8081/version"
@@ -253,4 +254,5 @@ if __name__ == "__main__":
     window = MyDialog()
     window.show()
     window.setWindowTitle("StudentMainKiller_Re")
+    window.setWindowIcon(QIcon('icon.ico'))
     sys.exit(app.exec_())
