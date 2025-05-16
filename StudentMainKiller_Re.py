@@ -30,7 +30,7 @@ def RunCommand(Command):
         text=True,
     )
 
-
+##键盘解锁
 class KeyboardHookThread(QThread):
     finished_signal = pyqtSignal(str, str)
 
@@ -93,7 +93,7 @@ class KeyboardHookThread(QThread):
     def stop(self):
         self.running = False
 
-
+##嵌入窗口
 class MyWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -135,7 +135,7 @@ class MyWindow(QMainWindow):
         except Exception as e:
             ResultShow(str(e), "失败")
 
-
+##主窗口
 class MyDialog(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
@@ -199,15 +199,19 @@ class MyDialog(QtWidgets.QDialog):
         self.embedded_window.show()
 
     def disable_internet_ban(self):
+        RunCommand("wmic process where name='GATESRV.exe' delete")
+        RunCommand("wmic process where name='MasterHelper.exe' delete")
         result = RunCommand("sc stop TDNetFilter")
-        if "STOPPED" or "失败" or "P"in result.stdout:
+        if "FAILED" or "失败" or "PENDING"in result.stdout:
             ResultShow(result.stdout, "失败")
         else:
             ResultShow(result.stdout, "成功")
     
     def disable_Udisk_ban(self):
+        RunCommand("wmic process where name='GATESRV.exe' delete")
+        RunCommand("wmic process where name='MasterHelper.exe' delete")
         result = RunCommand("sc stop TDFileFilter")
-        if "STOPPED" or "失败" in result.stdout:
+        if "FAILED" or "失败" or "PENDING"in result.stdout:
             ResultShow(result.stdout, "失败")
         else:
             ResultShow(result.stdout, "成功")
@@ -248,4 +252,5 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = MyDialog()
     window.show()
+    window.setWindowTitle("StudentMainKiller_Re")
     sys.exit(app.exec_())
