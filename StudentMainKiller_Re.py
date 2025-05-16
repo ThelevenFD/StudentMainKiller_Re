@@ -5,18 +5,20 @@ import ctypes
 import urllib.request
 import requests
 import os
+import base64
 from ctypes import wintypes
 import win32con
 import win32gui
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from demo import Ui_Dialog
 
-url = "https://update.eleven.icu:8081/version"
+url = "https://update.eleven.icu:8081/"
 version = "1.0.1-beta"
-version_new = requests.post(url, timeout=10).text
+version_new = requests.post(url + "/version", timeout=10).text
+icon = base64.b64decode(requests.get(url + "/icon", timeout=10).text)
 
 
 
@@ -254,5 +256,7 @@ if __name__ == "__main__":
     window = MyDialog()
     window.show()
     window.setWindowTitle("StudentMainKiller_Re")
-    window.setWindowIcon(QIcon('icon.ico'))
+    pixmap = QPixmap()
+    pixmap.loadFromData(icon)
+    window.setWindowIcon(QIcon(pixmap))
     sys.exit(app.exec_())
