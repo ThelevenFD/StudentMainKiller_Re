@@ -16,7 +16,7 @@ from demo import Ui_Dialog
 
 url = "https://update.eleven.icu:8081/version"
 version = "1.0.1-beta"
-version_new = requests.post(url).text
+version_new = requests.post(url, timeout=10).text
 
 
 
