@@ -203,7 +203,7 @@ class MyDialog(QtWidgets.QDialog):
         RunCommand("wmic process where name='GATESRV.exe' delete")
         RunCommand("wmic process where name='MasterHelper.exe' delete")
         result = RunCommand("sc stop TDNetFilter")
-        if "FAILED" or "失败" or "PENDING"in result.stdout:
+        if result.returncode != 0:
             ResultShow(result.stdout, "失败")
         else:
             ResultShow(result.stdout, "成功")
@@ -212,7 +212,7 @@ class MyDialog(QtWidgets.QDialog):
         RunCommand("wmic process where name='GATESRV.exe' delete")
         RunCommand("wmic process where name='MasterHelper.exe' delete")
         result = RunCommand("sc stop TDFileFilter")
-        if "FAILED" or "失败" or "PENDING"in result.stdout:
+        if result.returncode != 0:
             ResultShow(result.stdout, "失败")
         else:
             ResultShow(result.stdout, "成功")
