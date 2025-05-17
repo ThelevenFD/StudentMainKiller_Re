@@ -16,9 +16,13 @@ from PyQt5.QtGui import QIcon, QPixmap
 from demo import Ui_Dialog
 
 url = "https://update.eleven.icu:8081/"
-version = "1.0.1-beta"
-version_new = requests.post(url + "/version", timeout=10).text
-icon = base64.b64decode(requests.get(url + "/icon", timeout=10).text)
+version = "v1.0.0"
+try:
+    version_new = requests.post(url + "/version", timeout=10).text
+    icon = base64.b64decode(requests.get(url + "/icon", timeout=10).text)
+except:
+    version_new = "Can't connect to Server"
+    icon = None
 
 
 
@@ -162,16 +166,19 @@ class MyDialog(QtWidgets.QDialog):
         self.ui.pushButton.clicked.connect(self.kill_exe)
         self.ui.pushButton_2.clicked.connect(self.show_embedded_window)
         self.ui.pushButton_3.clicked.connect(self.disable_internet_ban)
-        self.ui.pushButton_4.clicked.connect(self.disable_Udisk_ban)
+        self.ui.pushButton_7.clicked.connect(self.disable_Udisk_ban)
         self.ui.pushButton_5.clicked.connect(self.disable_keyboard_ban)
         #self.ui.pushButton_6.clicked.connect(self.update)
 
         self.ui.pushButton.setText("结束进程")
         self.ui.pushButton_2.setText("缩小极域窗口")
         self.ui.pushButton_3.setText("解除网络禁用")
-        self.ui.pushButton_4.setText("解除U盘禁用")
+        self.ui.pushButton_7.setText("解除U盘禁用")
         self.ui.pushButton_5.setText("解除键盘锁")
         self.ui.pushButton_6.setText("更新(todo)")
+        self.ui.pushButton_4.setText("(未实现)")
+        self.ui.pushButton_8.setText("(未实现)")
+        self.ui.pushButton_9.setText("(未实现)")
 
     def timerEvent(self, event):
         self.set_topmost()
@@ -246,7 +253,7 @@ class MyDialog(QtWidgets.QDialog):
             path = os.environ.get("USERPROFILE")
             try:
                 ResultShow(path + "\desktop","")
-                urllib.request.urlretrieve(download_url, "E:/")
+                urllib.request.urlretrieve(download_url, path + "\desktop")
             except Exception as e:
                 ResultShow(str(e), "失败")
 '''

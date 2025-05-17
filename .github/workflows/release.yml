@@ -1,0 +1,58 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送v开头的标签时触发（例如v1.0.0）
+
+jobs:
+  build:
+    runs-on: windows-latest  # 也可以添加 windows/macos
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4  # 使用最新稳定版
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"  # 指定你的 Python 版本
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install pyinstaller
+        pip install -r requirements.txt  # 安装项目依赖
+
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller --onefile --clean --windowed --name=StudentMainKiller_Re --icon=icon.ico --uac-admin StudentMainKiller_Re.py  # 替换为你的脚本名
+        # 可选参数：--icon=icon.ico, --name=myapp
+
+    - name: Upload executable as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: StudentMainKiller_Re  # 工件名称
+        path: dist/  # PyInstaller 输出目录
+        retention-days: 30  # 工件保留天数（默认 90）
+
+  release:
+    needs: build
+    runs-on: windows-latest
+    
+    steps:
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: StudentMainKiller_Re
+        
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |  # 上传所有dist目录下的文件
+          dist/*
+        tag_name: ${{ github.ref }}
+        name: Release ${{ github.ref }}
+        body: Auto-generated release for ${{ github.ref }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
