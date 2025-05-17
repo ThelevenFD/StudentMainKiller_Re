@@ -1,6 +1,9 @@
 name: Build and Release
 
 on:
+  schedule:
+    # 每天UTC时间午夜运行 (北京时间早上8点)
+    - cron: '0 6 * * *'
   push:
     tags:
       - 'v*'  # 当推送v开头的标签时触发（例如v1.0.0）
