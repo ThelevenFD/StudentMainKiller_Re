@@ -42,6 +42,10 @@ jobs:
   release:
     needs: build
     runs-on: windows-latest
+
+    permissions:
+      contents: write  # 授予写入权限
+      pull-requests: write
     
     steps:
     - name: Download artifact
