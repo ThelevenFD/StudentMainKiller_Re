@@ -2,64 +2,66 @@ name: Build and Release
 
 on:
   schedule:
-    # 每天UTC时间午夜运行 (北京时间早上8点)
-    - cron: '0 6 * * *'
+    - cron: '0 6 * * *'  # 每天UTC时间6点（北京时间14点）
   push:
     tags:
-      - 'v*'  # 当推送v开头的标签时触发（例如v1.0.0）
+      - 'v*'  # 推送v开头的标签时触发
 
 jobs:
   build:
-    runs-on: windows-latest  # 也可以添加 windows/macos
-    
+    runs-on: windows-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4  # 使用最新稳定版
+      uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.11"  # 指定你的 Python 版本
+        python-version: "3.11"
 
     - name: Install dependencies
       run: |
         pip install --upgrade pip
         pip install pyinstaller
-        pip install -r requirements.txt  # 安装项目依赖
-
+        pip install -r requirements.txt
+        
     - name: Build with PyInstaller
       run: |
-        pyinstaller --onefile --clean --windowed --name=StudentMainKiller_Re --icon=icon.ico --uac-admin StudentMainKiller_Re.py  # 替换为你的脚本名
-        # 可选参数：--icon=icon.ico, --name=myapp
+        pyinstaller --onefile --clean --windowed \
+          --name=StudentMainKiller_Re \
+          --icon=icon.ico \
+          --uac-admin \
+          StudentMainKiller_Re.py
 
-    - name: Upload executable as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: StudentMainKiller_Re  # 工件名称
-        path: dist/  # PyInstaller 输出目录
-        retention-days: 30  # 工件保留天数（默认 90）
+    - name: Zip the Build
+      run: |
+        Compress-Archive -Path ./dist/* -DestinationPath ./release.zip
 
   release:
     needs: build
     runs-on: windows-latest
-
     permissions:
-      contents: write  # 授予写入权限
-      pull-requests: write
-    
+      contents: write
+
     steps:
-    - name: Download artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: StudentMainKiller_Re
-        
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Get release version
+      id: get_version
+      run: |
+        echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
-        files: |  # 上传所有dist目录下的文件
-          dist/*
-        tag_name: ${{ github.ref }}
-        name: Release ${{ github.ref }}
-        body: Auto-generated release for ${{ github.ref }}
+        tag_name: ${{ steps.get_version.outputs.version }}
+        name: "Release ${{ steps.get_version.outputs.version }}"
+        body: "Auto-generated release"
+        draft: false
+        prerelease: false
+        files: |
+          release.zip
+          LICENSE
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
