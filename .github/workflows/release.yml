@@ -27,11 +27,7 @@ jobs:
         
     - name: Build with PyInstaller
       run: |
-        pyinstaller --onefile --clean --windowed \
-          --name=StudentMainKiller_Re \
-          --icon=icon.ico \
-          --uac-admin \
-          StudentMainKiller_Re.py
+        pyinstaller --onefile --clean --windowed --name=StudentMainKiller_Re --icon=icon.ico --uac-admin StudentMainKiller_Re.py
 
     - name: Zip the Build
       run: |
