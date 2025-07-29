@@ -70,7 +70,7 @@ class attack_ui(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "UDP重放攻击"))
         self.label.setText(_translate("Dialog", "UDP重放攻击"))
         self.label_2.setText(_translate("Dialog", "攻击目标ip"))
         self.label_3.setText(_translate("Dialog", "发送文字"))
