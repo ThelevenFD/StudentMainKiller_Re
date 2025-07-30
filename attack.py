@@ -81,3 +81,4 @@ class attack_ui(object):
         self.pushButton_3.setText(_translate("Dialog", "内网ip扫描"))
         self.pushButton_4.setText(_translate("Dialog", "执行"))
         self.pushButton_5.setText(_translate("Dialog", "发送"))
+        self.textEdit_2.setText(_translate("Dialog", "4705"))
