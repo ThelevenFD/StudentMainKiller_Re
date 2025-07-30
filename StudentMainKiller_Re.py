@@ -128,6 +128,47 @@ class embed_window(QtWidgets.QDialog):
         # 延迟 100ms 确保窗口就绪后再嵌入
         QtCore.QTimer.singleShot(100, self.embed_target_window)
 
+
+
+
+    def get_process_path_by_name(process_name):
+        # 获取进程ID列表
+        kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
+        psapi = ctypes.WinDLL('psapi', use_last_error=True)
+
+        PROCESS_QUERY_INFORMATION = 0x0400
+        PROCESS_VM_READ = 0x0010
+        process_ids = (wintypes.DWORD * 1024)()
+        bytes_returned = wintypes.DWORD()
+        if not psapi.EnumProcesses(ctypes.byref(process_ids), ctypes.sizeof(process_ids), ctypes.byref(bytes_returned)):
+            raise ctypes.WinError(ctypes.get_last_error())
+        
+        count = bytes_returned.value // ctypes.sizeof(wintypes.DWORD)
+        
+        for pid in process_ids[:count]:
+            # 打开进程
+            hProcess = kernel32.OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, False, pid)
+            if hProcess:
+                try:
+                    # 获取进程名
+                    exe_name = (ctypes.c_char * 1024)()
+                    if psapi.GetProcessImageFileNameA(hProcess, exe_name, ctypes.sizeof(exe_name)):
+                        # 转换为字符串并提取文件名
+                        exe_path = exe_name.value.decode('utf-8')
+                        exe_filename = exe_path.split('\\')[-1]
+                        
+                        # 检查是否匹配目标进程名
+                        if exe_filename.lower() == process_name.lower():
+                            # 获取完整路径（使用QueryFullProcessImageName）
+                            buf = ctypes.create_unicode_buffer(1024)
+                            size = wintypes.DWORD(ctypes.sizeof(buf) // ctypes.sizeof(ctypes.c_wchar))
+                            if kernel32.QueryFullProcessImageNameW(hProcess, 0, buf, ctypes.byref(size)):
+                                return buf.value
+                finally:
+                    kernel32.CloseHandle(hProcess)
+        
+        return None
+
     def embed_target_window(self):
         parent_hwnd = int(self.winId())  # 获取 PyQt 窗口句柄
         global_state.sm_hwnd = win32gui.FindWindow(None, "屏幕广播")
@@ -160,13 +201,9 @@ class embed_window(QtWidgets.QDialog):
             ResultShow(str(e), "失败")
     
     def closeEvent(self, a0):
-        current_style = win32gui.GetWindowLong(global_state.sm_hwnd, win32con.GWL_STYLE)
-
-        # 移除 WS_CHILD，添加 WS_POPUP
-        new_style = (current_style & ~win32con.WS_CHILD) | win32con.WS_POPUP
-
-        # 应用新样式
-        win32gui.SetWindowLong(global_state.sm_hwnd, win32con.GWL_STYLE, new_style)
+        path = self.get_process_path_by_name("StudentMain.exe")
+        Main_window.kill_exe()
+        RunCommand(f"start {path}")
         return super().closeEvent(a0)
 
 ##主窗口
