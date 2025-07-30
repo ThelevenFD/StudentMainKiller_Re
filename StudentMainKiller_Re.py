@@ -131,7 +131,7 @@ class embed_window(QtWidgets.QDialog):
 
 
 
-    def get_process_path_by_name(process_name):
+    def get_process_path_by_name(self, process_name):
         # 获取进程ID列表
         kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
         psapi = ctypes.WinDLL('psapi', use_last_error=True)
@@ -154,7 +154,7 @@ class embed_window(QtWidgets.QDialog):
                     exe_name = (ctypes.c_char * 1024)()
                     if psapi.GetProcessImageFileNameA(hProcess, exe_name, ctypes.sizeof(exe_name)):
                         # 转换为字符串并提取文件名
-                        exe_path = exe_name.value.decode('utf-8')
+                        exe_path = exe_name.value.decode('gbk')
                         exe_filename = exe_path.split('\\')[-1]
                         
                         # 检查是否匹配目标进程名
@@ -202,8 +202,8 @@ class embed_window(QtWidgets.QDialog):
     
     def closeEvent(self, a0):
         path = self.get_process_path_by_name("StudentMain.exe")
-        Main_window.kill_exe()
-        RunCommand(f"start {path}")
+        Main_window.kill_exe(self)
+        subprocess.Popen([path])
         return super().closeEvent(a0)
 
 ##主窗口
