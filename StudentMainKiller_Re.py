@@ -293,6 +293,8 @@ class Attack_window(QtWidgets.QDialog):
         self.ui.setupUi(self)
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
         self.timer = self.startTimer(50)
+        self.ui.pushButton.clicked.connect(self.send_message)
+        self.ui.pushButton_2.clicked.connect(self.send_message)
         self.ui.pushButton_4.clicked.connect(self.send_message)
         self.ui.pushButton_5.clicked.connect(self.send_message)
         
@@ -374,13 +376,17 @@ class Attack_window(QtWidgets.QDialog):
             try:
                 if button == "发送":
                     payload = pack(f"{len(full_message)}B", *full_message)
-                else:
+                elif button == "执行":
                     payload = pack(f"{len(packet)}B", *packet)
+                elif button == "关机":
+                    payload = pack(f"{len(base[3])}B", *base[3])
+                else:
+                    payload = pack(f"{len(base[2])}B", *base[2])
                 client.sendto(payload, (host, port))
-                ResultShow(f"发送消息/命令到 {host}:{port}", "成功")
+                ResultShow(f"发送到 {host}:{port}", "成功")
             except Exception as e:
                 print(f"发送到 {host}:{port} 失败: {str(e)}")
-                ResultShow(f"发送消息/命令到 {host}:{port}", "失败")
+                ResultShow(f"发送到 {host}:{port}", "失败")
         
         client.close()
 
