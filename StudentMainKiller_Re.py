@@ -4,8 +4,10 @@ import time
 import ctypes
 import socket
 import requests
+import ipaddress
 from struct import pack
 import base64
+import concurrent.futures
 from ctypes import wintypes
 import win32con
 import win32gui
@@ -122,7 +124,7 @@ class embed_window(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("StudentMainKiller")
-        self.resize(800, 600)
+        self.resize(1920,1080)
         self.show()
 
         # 延迟 100ms 确保窗口就绪后再嵌入
@@ -338,6 +340,7 @@ class Attack_window(QtWidgets.QDialog):
         self.timer = self.startTimer(50)
         self.ui.pushButton.clicked.connect(self.send_message)
         self.ui.pushButton_2.clicked.connect(self.send_message)
+        self.ui.pushButton_3.clicked.connect(self.scan_ip_range)
         self.ui.pushButton_4.clicked.connect(self.send_message)
         self.ui.pushButton_5.clicked.connect(self.send_message)
         
@@ -435,6 +438,67 @@ class Attack_window(QtWidgets.QDialog):
         
         client.close()
 
+    def get_local_ip(self):
+        """获取本机局域网IP"""
+        try:
+            # 创建一个UDP套接字（不会真正发送数据）
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("114.114.114.114", 80))  # 连接到公共DNS服务器
+            local_ip = s.getsockname()[0]
+            s.close()
+            part = local_ip.split(".")
+            part[-1] = "0/24"
+            return ('.'.join(part))
+        except Exception as e:
+            ResultShow(f"获取本机ip失败{e}", "失败")
+
+    def ping_host(self, ip):
+        try:
+            command = ['ping', '-n', '1', '-w', '1000', str(ip)]
+            output = subprocess.run(command,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                timeout=1)
+            return output.returncode == 0
+        except:
+            return False
+
+    def scan_ip_range(self):
+        """扫描IP段，仅检测存活主机"""
+        alive_hosts = []
+        number = 0
+        ip_range = self.get_local_ip()
+        network = ipaddress.ip_network(ip_range, strict=False)
+        
+        # 使用线程池并发扫描
+        with concurrent.futures.ThreadPoolExecutor(90) as executor:
+            future_to_ip = {executor.submit(self.ping_host, ip): ip for ip in network.hosts()}
+            
+            for future in concurrent.futures.as_completed(future_to_ip):
+                ip = future_to_ip[future]
+                try:
+                    if future.result():
+                        number += 1
+                        alive_hosts.append(ip)
+                except Exception as e:
+                    print(e)
+                finally:
+                    try:
+                        ResultShow(f"共扫描到{number}个ip，已写出到C:/ips.txt", "成功")
+                        with open("C:/ips.txt", "w") as f:
+                            for ips in alive_hosts:
+                                f.write(f"{ips}\n")
+                    except:
+                        try:
+                            ResultShow(f"共扫描到{number}个ip，已写出到D:/ips.txt", "成功")
+                            with open("D:/ips.txt", "w") as f:
+                                for ips in alive_hosts:
+                                    f.write(f"{ips}\n")
+                        except:
+                            ResultShow(f"共扫描到{number}个ip，已写出到E:/ips.txt", "成功")
+                            with open("E:/ips.txt", "w") as f:
+                                for ips in alive_hosts:
+                                    f.write(f"{ips}\n")
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)

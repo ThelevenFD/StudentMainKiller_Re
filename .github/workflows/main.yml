@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest  # 也可以添加 windows/macos
+    runs-on: windows-latest
     
     steps:
     - name: Checkout code
@@ -26,8 +26,7 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
-        pyinstaller --onefile --clean --windowed --name=StudentMainKiller_Re --icon=icon.ico --uac-admin StudentMainKiller_Re.py  # 替换为你的脚本名
-        # 可选参数：--icon=icon.ico, --name=myapp
+        pyinstaller --clean --windowed --name=StudentMainKiller_Re --icon=icon.ico --uac-admin StudentMainKiller_Re.py  # 替换为你的脚本名
 
     - name: Upload executable as artifact
       uses: actions/upload-artifact@v4
