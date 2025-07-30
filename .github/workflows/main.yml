@@ -11,12 +11,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4  # 使用最新稳定版
+      uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.11"  # 指定你的 Python 版本
+        python-version: "3.11"
 
     - name: Install dependencies
       run: |
@@ -26,7 +26,7 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
-        pyinstaller --clean --windowed --name=StudentMainKiller_Re --icon=icon.ico --uac-admin StudentMainKiller_Re.py  # 替换为你的脚本名
+        pyinstaller --onefile --clean --windowed --name=StudentMainKiller_Re --icon=icon.ico --uac-admin StudentMainKiller_Re.py
 
     - name: Upload executable as artifact
       uses: actions/upload-artifact@v4
